@@ -121,7 +121,6 @@ func (s ServiceConfig) Init() error {
 	if outFile, err := os.OpenFile(fmt.Sprintf("%v/out.log", s.LogPath), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666); err != nil {
 		return err
 	} else {
-		ServeMode = s.Mode
 		switch s.Mode {
 		case Debug:
 			Logger = logs.Default(outFile, "[DEBUG]", log.LstdFlags|log.Llongfile)
@@ -157,7 +156,7 @@ func (s *ServiceConfig) Read(configName string, file *ini.File) error {
 		s.Port = "8080"
 	}
 	if s.LogPath == "" {
-		s.LogPath = "./log"
+		s.LogPath = "log"
 	}
 	return nil
 }

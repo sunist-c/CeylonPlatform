@@ -1,18 +1,27 @@
 package initialization
 
 import (
+	"CeylonPlatform/middleware/authentication"
 	"CeylonPlatform/middleware/logs"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"gopkg.in/ini.v1"
+	"log"
+	"os"
 	"xorm.io/xorm"
 )
 
 func init() {
-	InitEntityList = make(map[string]ConfigCustomer)
-	InitEntityList["redis"] = &RedisConfig{}
-	InitEntityList["mysql"] = &MysqlConfig{}
-	InitEntityList["service"] = &ServiceConfig{}
+	initEntityList = make(map[string]ConfigCustomer)
+	initEntityList["redis"] = &RedisConfig{}
+	initEntityList["mysql"] = &MysqlConfig{}
+	initEntityList["service"] = &ServiceConfig{}
+	syncEntityList = make([]interface{}, 0)
+	syncEntityList = append(syncEntityList, new(authentication.User))
+	syncEntityList = append(syncEntityList, new(authentication.Client))
+	syncEntityList = append(syncEntityList, new(authentication.AccessToken))
+	syncEntityList = append(syncEntityList, new(authentication.RefreshToken))
+	syncEntityList = append(syncEntityList, new(authentication.AuthorizationCode))
 }
 
 type ConfigCustomer interface {
@@ -24,7 +33,8 @@ type ConfigCustomer interface {
 }
 
 var (
-	InitEntityList map[string]ConfigCustomer
+	initEntityList map[string]ConfigCustomer
+	syncEntityList []interface{}
 )
 
 // 定义复用对象
@@ -35,7 +45,6 @@ var (
 	RedisConnection *redis.Client    // Redis连接池
 	engine          *gin.Engine      // gin引擎
 	startFunction   func() error     // 启动函数
-	ServeMode       ServiceMode      // 服务状态
 )
 
 // InitEntities 初始化可复用实体
@@ -47,7 +56,7 @@ func InitEntities(filePath string) error {
 	}
 
 	// 实例化可服用实体
-	for key, customer := range InitEntityList {
+	for key, customer := range initEntityList {
 		if err = customer.Read(key, file); err != nil {
 			return err
 		}
@@ -63,4 +72,27 @@ func InitEntities(filePath string) error {
 	}
 
 	return nil
+}
+
+func Close() (code int) {
+	log.Println("closing entities")
+	err := DbConnection.Close()
+	if err != nil {
+		log.Println("database connection close failed")
+		return 1
+	}
+	err = RedisConnection.Close()
+	if err != nil {
+		log.Println("redis connection close failed")
+		return 1
+	}
+
+	log.Println("entities closed")
+	return 0
+}
+
+func ListenSignal(sigs chan os.Signal) {
+	sig := <-sigs
+	log.Println(sig)
+	os.Exit(Close())
 }
