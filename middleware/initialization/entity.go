@@ -1,7 +1,6 @@
 package initialization
 
 import (
-	"CeylonPlatform/middleware/authentication"
 	"CeylonPlatform/middleware/logs"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
@@ -16,12 +15,6 @@ func init() {
 	initEntityList["redis"] = &RedisConfig{}
 	initEntityList["mysql"] = &MysqlConfig{}
 	initEntityList["service"] = &ServiceConfig{}
-	syncEntityList = make([]interface{}, 0)
-	syncEntityList = append(syncEntityList, new(authentication.User))
-	syncEntityList = append(syncEntityList, new(authentication.Client))
-	syncEntityList = append(syncEntityList, new(authentication.AccessToken))
-	syncEntityList = append(syncEntityList, new(authentication.RefreshToken))
-	syncEntityList = append(syncEntityList, new(authentication.AuthorizationCode))
 }
 
 type ConfigCustomer interface {
@@ -34,7 +27,6 @@ type ConfigCustomer interface {
 
 var (
 	initEntityList map[string]ConfigCustomer
-	syncEntityList []interface{}
 )
 
 // 定义复用对象

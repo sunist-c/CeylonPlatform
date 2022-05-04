@@ -2,17 +2,15 @@ package initialization
 
 import (
 	"CeylonPlatform/middleware/api"
+	"CeylonPlatform/middleware/database"
 	"xorm.io/xorm/names"
 )
 
-func StartUp() error {
+func StartUp() (err error) {
 	// 同步数据库
 	DbConnection.SetMapper(names.GonicMapper{})
-	for _, v := range syncEntityList {
-		err := DbConnection.Sync2(v)
-		if err != nil {
-			return err
-		}
+	if err = database.Sync(DbConnection); err != nil {
+		return
 	}
 
 	// 绑定服务路由

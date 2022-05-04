@@ -1,6 +1,13 @@
 package authentication
 
-import "time"
+import (
+	"CeylonPlatform/middleware/database"
+	"time"
+)
+
+func init() {
+	database.AddEntity(new(User), new(Client), new(AccessToken), new(RefreshToken), new(AuthorizationCode))
+}
 
 // User 用户的结构，用于维护用户基本信息
 type User struct {
