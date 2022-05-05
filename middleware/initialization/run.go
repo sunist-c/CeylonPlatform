@@ -21,5 +21,5 @@ func StartUp() (err error) {
 
 func Serve() (err error) {
 	// 启动API服务
-	return startFunction()
+	return starFunction()
 }

@@ -161,7 +161,7 @@ func (a Authenticator) CreateUser() (user *User, err error) {
 	user = &User{
 		ID:       userID,
 		Name:     uid.GenerateRandomName(),
-		Password: userID,
+		Password: encodePassword(userID, userID),
 		Scope:    Student,
 		CreateAt: time.Now(),
 		UpdateAt: time.Now(),
@@ -180,7 +180,7 @@ func (a Authenticator) CreateUserWith(opts *UserOptions) (user *User, err error)
 	user = &User{
 		ID:       userID,
 		Name:     uid.GenerateRandomName(),
-		Password: userID,
+		Password: encodePassword(userID, userID),
 		Scope:    Student,
 		CreateAt: time.Now(),
 		UpdateAt: time.Now(),
@@ -829,4 +829,28 @@ func (a Authenticator) RefreshToken(authType AuthType, opts *TokenOptions) (toke
 	default:
 		return nil, nil, errors.New("bad auth-type")
 	}
+}
+
+// GetClientInfo 根据ClientID获取Client
+func (a Authenticator) GetClientInfo(clientID string) (client *Client, err error) {
+	client = &Client{}
+	ok, err := a.dbConn.ID(clientID).Get(client)
+	if !ok || err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
+
+// GetUserID 根据Name获取User的ID
+func (a Authenticator) GetUserID(name string) (id string, err error) {
+	user := &User{
+		Name: name,
+	}
+	ok, err := a.dbConn.Get(user)
+	if !ok || err != nil {
+		return "", err
+	}
+
+	return user.Name, nil
 }

@@ -1,10 +1,10 @@
 package initialization
 
 import (
+	"CeylonPlatform/middleware/api"
 	"CeylonPlatform/middleware/logs"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/ini.v1"
@@ -111,12 +111,6 @@ type ServiceConfig struct {
 }
 
 func (s ServiceConfig) Init() error {
-	// 实例化gin
-	e := gin.New()
-	ApiRouter = e.Group("/")
-	engine = e
-	startFunction = s.run()
-
 	// 实例化logger
 	if outFile, err := os.OpenFile(fmt.Sprintf("%v/out.log", s.LogPath), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666); err != nil {
 		return err
@@ -131,6 +125,10 @@ func (s ServiceConfig) Init() error {
 		default:
 			Logger = logs.Default(outFile, "[INFO]", log.LstdFlags)
 		}
+	}
+
+	starFunction = func() error {
+		return api.Run(s.Port)
 	}
 
 	return nil
@@ -159,12 +157,6 @@ func (s *ServiceConfig) Read(configName string, file *ini.File) error {
 		s.LogPath = "log"
 	}
 	return nil
-}
-
-func (s ServiceConfig) run() func() error {
-	return func() error {
-		return engine.Run(fmt.Sprintf("0.0.0.0:%v", s.Port))
-	}
 }
 
 type ServiceMode string

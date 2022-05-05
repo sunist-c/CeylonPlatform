@@ -2,7 +2,6 @@ package initialization
 
 import (
 	"CeylonPlatform/middleware/logs"
-	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"gopkg.in/ini.v1"
 	"log"
@@ -31,12 +30,10 @@ var (
 
 // 定义复用对象
 var (
-	DbConnection    *xorm.Engine     // 数据库连接池
-	ApiRouter       *gin.RouterGroup // API路由
-	Logger          *logs.Logger     // 日志器
-	RedisConnection *redis.Client    // Redis连接池
-	engine          *gin.Engine      // gin引擎
-	startFunction   func() error     // 启动函数
+	DbConnection    *xorm.Engine  // 数据库连接池
+	Logger          *logs.Logger  // 日志器
+	RedisConnection *redis.Client // Redis连接池
+	starFunction    func() error  // 启动函数
 )
 
 // InitEntities 初始化可复用实体
@@ -58,7 +55,7 @@ func InitEntities(filePath string) error {
 	}
 
 	// 检查实体状态
-	if DbConnection == nil || ApiRouter == nil || Logger == nil || RedisConnection == nil {
+	if DbConnection == nil || Logger == nil || RedisConnection == nil {
 		// todo: complete empty middlewares
 		panic("todo: complete empty middlewares")
 	}

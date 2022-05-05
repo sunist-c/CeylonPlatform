@@ -3,6 +3,8 @@ package main
 import (
 	_ "CeylonPlatform/middleware/authentication"
 	"CeylonPlatform/middleware/initialization"
+	_ "CeylonPlatform/service"
+	_ "CeylonPlatform/service/authorize"
 	"log"
 	"math/rand"
 	"os"

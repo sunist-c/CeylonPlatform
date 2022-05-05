@@ -2,6 +2,7 @@ package api
 
 import (
 	"CeylonPlatform/middleware/logs"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"xorm.io/xorm"
@@ -9,7 +10,13 @@ import (
 
 var (
 	serviceInterfaces []ServiceInterface = make([]ServiceInterface, 0, 16)
+	baseEngine        *gin.Engine        = gin.Default()
+	baseRouter        *gin.RouterGroup   = baseEngine.Group("/")
 )
+
+func BaseRouter() *gin.RouterGroup {
+	return baseRouter
+}
 
 type ContextType string
 
@@ -17,7 +24,6 @@ const (
 	Database ContextType = "db"
 	Redis    ContextType = "redis"
 	Logger   ContextType = "logger"
-	// Authenticator ContextType = "authenticator"
 )
 
 type HttpMethod string
@@ -72,13 +78,13 @@ func NewContextWith(opts *ContextOptions) *Context {
 // Get 获取服务依赖环境中的依赖
 func (c Context) Get(key ContextType) (value interface{}, ok bool) {
 	value, ok = c.dictionary[key]
-	return
+	return value, ok
 }
 
 // ServiceHandler 服务处理器，用于处理某一类请求
 type ServiceHandler struct {
 	Name       string
-	Uri        string
+	Url        string
 	Method     HttpMethod
 	Handler    Handler
 	Dependence *Context
@@ -87,48 +93,53 @@ type ServiceHandler struct {
 
 // ServiceInterface 服务接口，用于向公网提供服务
 type ServiceInterface interface {
-	Handlers() []ServiceHandler
+	Handlers() []*ServiceHandler
 }
 
 // Bind 将各ServiceInterface的各Handler绑定到其对应的RouterGroup上
 func Bind() {
 	for _, serviceInterface := range serviceInterfaces {
-		for _, handler := range serviceInterface.Handlers() {
+		handlers := serviceInterface.Handlers()
+		for i, _ := range handlers {
+			handler := serviceInterface.Handlers()[i]
+			if handler.Dependence == nil {
+				handler.Dependence = NewContext()
+			}
 			switch handler.Method {
 			case GET:
-				handler.Router.GET(handler.Uri, func(context *gin.Context) {
+				handler.Router.GET(handler.Url, func(context *gin.Context) {
 					handler.Handler(context, handler.Dependence)
 				})
 			case POST:
-				handler.Router.POST(handler.Uri, func(context *gin.Context) {
+				handler.Router.POST(handler.Url, func(context *gin.Context) {
 					handler.Handler(context, handler.Dependence)
 				})
 			case PATCH:
-				handler.Router.PATCH(handler.Uri, func(context *gin.Context) {
+				handler.Router.PATCH(handler.Url, func(context *gin.Context) {
 					handler.Handler(context, handler.Dependence)
 				})
 			case PUT:
-				handler.Router.PUT(handler.Uri, func(context *gin.Context) {
+				handler.Router.PUT(handler.Url, func(context *gin.Context) {
 					handler.Handler(context, handler.Dependence)
 				})
 			case DELETE:
-				handler.Router.DELETE(handler.Uri, func(context *gin.Context) {
+				handler.Router.DELETE(handler.Url, func(context *gin.Context) {
 					handler.Handler(context, handler.Dependence)
 				})
 			case HEAD:
-				handler.Router.HEAD(handler.Uri, func(context *gin.Context) {
+				handler.Router.HEAD(handler.Url, func(context *gin.Context) {
 					handler.Handler(context, handler.Dependence)
 				})
 			case OPTIONS:
-				handler.Router.OPTIONS(handler.Uri, func(context *gin.Context) {
+				handler.Router.OPTIONS(handler.Url, func(context *gin.Context) {
 					handler.Handler(context, handler.Dependence)
 				})
 			case ANY:
-				handler.Router.Any(handler.Uri, func(context *gin.Context) {
+				handler.Router.Any(handler.Url, func(context *gin.Context) {
 					handler.Handler(context, handler.Dependence)
 				})
 			default:
-				handler.Router.Any(handler.Uri, func(context *gin.Context) {
+				handler.Router.Any(handler.Url, func(context *gin.Context) {
 					handler.Handler(context, handler.Dependence)
 				})
 			}
@@ -139,4 +150,8 @@ func Bind() {
 // AddService 向API中间件添加一个暴露于公网的服务
 func AddService(serviceInterface ServiceInterface) {
 	serviceInterfaces = append(serviceInterfaces, serviceInterface)
+}
+
+func Run(port string) error {
+	return baseEngine.Run(fmt.Sprintf("0.0.0.0:%v", port))
 }
