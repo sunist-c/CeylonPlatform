@@ -33,7 +33,7 @@ func GenerateMd5Len16(str, salt string) (md5 string) {
 	return GenerateMd5Len32(str, salt)[8:24]
 }
 
-// GenerateMd5Len32 生成16位长字符串的md5摘要
+// GenerateMd5Len32 生成32位长字符串的md5摘要
 func GenerateMd5Len32(str, salt string) (md5 string) {
 	h := crypto.MD5.New()
 	h.Write([]byte(str + salt))
@@ -66,4 +66,8 @@ func GenerateUid(uidType UidType) (uid string) {
 
 	uid = GenerateMd5Len16(strconv.Itoa(randNum), "") + GenerateMd5Len16(strconv.FormatInt(nanoTime, 10), strconv.FormatInt(unixTime, 10))
 	return
+}
+
+func GenerateRandomName() (name string) {
+	return GenerateMd5Len16(time.Now().String(), strconv.Itoa(rand.Int()%114514))
 }
