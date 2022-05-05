@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	database.AddEntity(new(User), new(Client), new(AccessToken), new(RefreshToken), new(AuthorizationCode))
+	database.AddEntity(new(User), new(Client))
 }
 
 // User 用户的结构，用于维护用户基本信息
@@ -21,15 +21,15 @@ type User struct {
 
 // Client client表的结构，用于维护client的基本信息
 type Client struct {
-	ID          string    `xorm:"notnull varchar(32) unique index pk"`
-	Name        string    `xorm:"notnull varchar(32)"`
-	Key         string    `xorm:"notnull varchar(32)"`
-	Secret      string    `xorm:"notnull varchar(32)"`
-	RedirectUri string    `xorm:"varchar(255)"`
-	Scope       ScopeType `xorm:"varchar(32) notnull default('student')"`
-	Method      AuthType  `xorm:"varchar(32) notnull default('client')"`
-	CreateAt    time.Time `xorm:"notnull"`
-	UpdateAt    time.Time `xorm:"notnull"`
+	ID             string    `xorm:"notnull varchar(32) unique index pk"`
+	Name           string    `xorm:"notnull varchar(32)"`
+	Key            string    `xorm:"notnull varchar(32)"`
+	Secret         string    `xorm:"notnull varchar(32)"`
+	RedirectDomain string    `xorm:"varchar(255)"`
+	Scope          ScopeType `xorm:"varchar(32) notnull default('student')"`
+	Method         AuthType  `xorm:"varchar(32) notnull default('client')"`
+	CreateAt       time.Time `xorm:"notnull"`
+	UpdateAt       time.Time `xorm:"notnull"`
 }
 
 // AccessToken token表的结构，用于维护token
@@ -85,7 +85,3 @@ const (
 	Guest   ScopeType = 1
 	Empty   ScopeType = 0
 )
-
-func (c *Client) defaultValue() {
-
-}

@@ -10,7 +10,7 @@ func StartUp() (err error) {
 	// 同步数据库
 	DbConnection.SetMapper(names.GonicMapper{})
 	if err = database.Sync(DbConnection); err != nil {
-		return
+		return err
 	}
 
 	// 绑定服务路由
