@@ -4,9 +4,11 @@ import (
 	_ "CeylonPlatform/middleware/authentication"
 	"CeylonPlatform/middleware/initialization"
 	"log"
+	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func main() {
@@ -15,6 +17,7 @@ func main() {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	log.Default().SetFlags(log.Ldate | log.Ltime | log.Llongfile)
 	log.Default().SetPrefix("[main]")
+	rand.Seed(time.Now().Unix())
 
 	// 监听退出信号
 	go initialization.ListenSignal(sigs)
@@ -25,9 +28,12 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// 运行服务
+	// 准备运行服务
 	err = initialization.StartUp()
 	if err != nil {
 		initialization.Logger.Fatal(err.Error())
 	}
+
+	// 开始服务
+	initialization.Serve()
 }

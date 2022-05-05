@@ -25,7 +25,7 @@ type Client struct {
 	Name        string    `xorm:"notnull varchar(32)"`
 	Key         string    `xorm:"notnull varchar(32)"`
 	Secret      string    `xorm:"notnull varchar(32)"`
-	RedirectUri string    `xorm:"notnull varchar(255)"`
+	RedirectUri string    `xorm:"varchar(255)"`
 	Scope       ScopeType `xorm:"varchar(32) notnull default('student')"`
 	Method      AuthType  `xorm:"varchar(32) notnull default('client')"`
 	CreateAt    time.Time `xorm:"notnull"`
@@ -63,7 +63,7 @@ type AuthorizationCode struct {
 	Scope       ScopeType `xorm:"notnull varchar(32) default('student')"`
 	ExpireAt    time.Time `xorm:"notnull"`
 	CreateAt    time.Time `xorm:"notnull"`
-	RedirectUri string    `xorm:"notnull varchar(255)"`
+	RedirectUri string    `xorm:"varchar(255)"`
 }
 
 type ScopeType string
@@ -84,3 +84,7 @@ const (
 	Student ScopeType = "student"
 	Guest   ScopeType = "guest"
 )
+
+func (c *Client) defaultValue() {
+
+}

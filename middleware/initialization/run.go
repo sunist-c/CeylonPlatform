@@ -16,6 +16,10 @@ func StartUp() (err error) {
 	// 绑定服务路由
 	api.Bind()
 
+	return nil
+}
+
+func Serve() (err error) {
 	// 启动API服务
 	return startFunction()
 }
