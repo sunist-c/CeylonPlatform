@@ -1,8 +1,12 @@
 package authentication
 
 import (
+	"CeylonPlatform/middleware/initialization"
+	"CeylonPlatform/pkg/uid"
 	"errors"
 	"github.com/go-redis/redis"
+	"math/rand"
+	"strconv"
 	"time"
 	"xorm.io/xorm"
 )
@@ -22,6 +26,14 @@ type Authenticator struct {
 	tokenStorageType storageType
 }
 
+func DefaultAuthenticator() *Authenticator {
+	return &Authenticator{
+		dbConn:           initialization.DbConnection,
+		redisConn:        initialization.RedisConnection,
+		tokenStorageType: Redis,
+	}
+}
+
 // SetStorageType 设置Token/RefreshToken/Code的存储方式，目前只有Redis实现
 func (a *Authenticator) SetStorageType(storage storageType) {
 	a.tokenStorageType = storage
@@ -29,10 +41,10 @@ func (a *Authenticator) SetStorageType(storage storageType) {
 
 func (a Authenticator) CreateClient() (client *Client, err error) {
 	client = &Client{
-		ID:          "",
-		Name:        "",
-		Key:         "",
-		Secret:      "",
+		ID:          uid.GenerateUid(uid.Client),
+		Name:        uid.GenerateMd5Len16(time.Now().String(), strconv.Itoa(rand.Int()%114514)),
+		Key:         uid.GenerateUid(uid.ClientKey),
+		Secret:      uid.GenerateUid(uid.ClientSecret),
 		RedirectUri: "",
 		Scope:       Student,
 		Method:      PasswordAuth,
@@ -50,10 +62,10 @@ func (a Authenticator) CreateClient() (client *Client, err error) {
 
 func (a Authenticator) CreateClientWith(opts *ClientOptions) (client *Client, err error) {
 	client = &Client{
-		ID:          "",
-		Name:        "",
-		Key:         "",
-		Secret:      "",
+		ID:          uid.GenerateUid(uid.Client),
+		Name:        uid.GenerateMd5Len16(time.Now().String(), strconv.Itoa(rand.Int()%114514)),
+		Key:         uid.GenerateUid(uid.ClientKey),
+		Secret:      uid.GenerateUid(uid.ClientSecret),
 		RedirectUri: "",
 		Scope:       Student,
 		Method:      PasswordAuth,
@@ -61,9 +73,6 @@ func (a Authenticator) CreateClientWith(opts *ClientOptions) (client *Client, er
 		UpdateAt:    time.Now(),
 	}
 
-	if opts.id != "" {
-		client.ID = opts.id
-	}
 	if opts.Method != "" {
 		client.Method = opts.Method
 	}
@@ -100,11 +109,9 @@ func (a Authenticator) CreateUser() (user *User, err error) {
 }
 
 func (a Authenticator) CreateUserWith(opts *UserOptions) (user *User, err error) {
-
 }
 
 func (a Authenticator) UpdateUserWith(opts *UserOptions) (user *User, err error) {
-
 }
 
 func (a Authenticator) DeleteUser(opts *UserOptions) (ok bool, err error) {
