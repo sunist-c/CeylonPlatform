@@ -66,7 +66,7 @@ type AuthorizationCode struct {
 	RedirectUri string    `xorm:"varchar(255)"`
 }
 
-type ScopeType string
+type ScopeType int
 type AuthType string
 
 // 定义四种OAuth模式
@@ -79,10 +79,11 @@ const (
 
 // 定义四种权限类型
 const (
-	Manager ScopeType = "manager"
-	Teacher ScopeType = "teacher"
-	Student ScopeType = "student"
-	Guest   ScopeType = "guest"
+	Manager ScopeType = 4
+	Teacher ScopeType = 3
+	Student ScopeType = 2
+	Guest   ScopeType = 1
+	Empty   ScopeType = 0
 )
 
 func (c *Client) defaultValue() {
