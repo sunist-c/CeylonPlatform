@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "CeylonPlatform/middleware/authentication"
 	"CeylonPlatform/middleware/initialization"
 	"log"
 	"os"
@@ -12,8 +13,11 @@ func main() {
 	// 监听系统信号，初始化主程序环境
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	log.Default().SetFlags(log.Ldate | log.Ltime)
+	log.Default().SetFlags(log.Ldate | log.Ltime | log.Llongfile)
 	log.Default().SetPrefix("[main]")
+
+	// 监听退出信号
+	go initialization.ListenSignal(sigs)
 
 	// 初始化运行实体
 	err := initialization.InitEntities("config.ini")
@@ -26,7 +30,4 @@ func main() {
 	if err != nil {
 		initialization.Logger.Fatal(err.Error())
 	}
-
-	// 监听退出信号
-	go initialization.ListenSignal(sigs)
 }

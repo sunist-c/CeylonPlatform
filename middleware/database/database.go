@@ -5,17 +5,25 @@ import (
 )
 
 var (
-	syncEntityList []interface{} = make([]interface{}, 0, 16)
+	syncEntityList []*interface{} = make([]*interface{}, 0, 16)
 )
 
 // Sync 与数据库同步表结构
 func Sync(dbConn *xorm.Engine) error {
-	return dbConn.Sync2(syncEntityList)
+	for _, i := range syncEntityList {
+		err := dbConn.Sync2(*i)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // AddEntity 向数据库表结构同步列表添加一个实体
 func AddEntity(interfaces ...interface{}) {
-	syncEntityList = append(syncEntityList, interfaces)
+	for index, _ := range interfaces {
+		syncEntityList = append(syncEntityList, &interfaces[index])
+	}
 }
 
 // ==================================== //
