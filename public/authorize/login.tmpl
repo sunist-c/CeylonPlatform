@@ -1,0 +1,93 @@
+{{define "authorize/login.tmpl"}}
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CeylonSystem 统一认证页面</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            html {
+                height: 100%;
+            }
+            body {
+                height: 100%;
+            }
+            .container {
+                height: 100%;
+                background-image: linear-gradient(to right, #fbc2eb, #a6c1ee);
+            }
+            .login-wrapper {
+                background-color: #fff;
+                width: 80%;
+                height: 80%;
+                border-radius: 35px;
+
+                align-content: center;
+                align-items: center;
+                align-self: center;
+            }
+            .header {
+                font-size: 28px;
+                font-weight: bold;
+                text-align: center;
+                line-height: 60px;
+            }
+            .input-item {
+                display: block;
+                width: 50%;
+                margin-bottom: 20px;
+                border: 0;
+                padding: 10px;
+                border-bottom: 1px solid rgb(128, 125, 125);
+                font-size: 15px;
+                outline: none;
+            }
+
+            .btn {
+                text-align: center;
+                padding: 15px;
+                width: 50%;
+                margin-top: 40px;
+                background-image: linear-gradient(to right, #a6c1ee, #fbc2eb);
+                color: #fff;
+                border-radius: 25px;
+            }
+            .msg {
+                text-align: center;
+                line-height: 88px;
+            }
+            a {
+                text-decoration-line: none;
+                color: #f70000;
+            }
+
+        </style>
+    </head>
+
+    <body>
+    <div class="container" align="center">
+        <div style="height: 10%"></div>
+        <div class="login-wrapper" align="center">
+            <div class="header">登录 CeylonPlatform 以继续</div>
+            <img src="{{.Favicon}}" width="150px" height="150px" style="margin: 10px">
+            <p style="margin-bottom: 10px">本服务由 <a href="{{.ClientWebsite}}">{{.ClientWebsite}}</a> 提供</p>
+            <form accept-charset="UTF-8" method="post" action="/authorize/oauth?client_id={{.ClientID}}&auth_type={{.AuthType}}&scope={{.Scope}}&redirect_url={{.RedirectUrl}}">
+                <!--一定要写value，否则不会提交该内容-->
+                <input type="text" name="username" placeholder="username" class="input-item" value="{{.Username}}">
+                <input type="password" name="password" placeholder="password" class="input-item" value="{{.Password}}">
+                <input type="submit" value="认证" style="margin: 10px"  class="btn">
+            </form>
+
+            <div class="msg">
+                默认账号密码都是学号
+            </div>
+            <br>
+            <p><a href="#" >CeylonSystem</a> 由 <a href="https://github.com/swu-acm-lab" >Southwest University ACM Laboratory</a> 提供技术支持</p>
+
+        </div>
+    </div>
+    </body>
+{{end}}

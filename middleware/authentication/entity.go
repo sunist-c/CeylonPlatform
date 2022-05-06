@@ -14,7 +14,7 @@ type User struct {
 	ID       string    `xorm:"pk varchar(32) unique notnull index"`
 	Name     string    `xorm:"varchar(32) notnull"`
 	Password string    `xorm:"varchar(32) notnull"`
-	Scope    ScopeType `xorm:"varchar(32) notnull default('student')"`
+	Scope    ScopeType `xorm:"notnull"`
 	CreateAt time.Time `xorm:"notnull"`
 	UpdateAt time.Time `xorm:"notnull"`
 }
@@ -26,7 +26,7 @@ type Client struct {
 	Key            string    `xorm:"notnull varchar(32)"`
 	Secret         string    `xorm:"notnull varchar(32)"`
 	RedirectDomain string    `xorm:"varchar(255)"`
-	Scope          ScopeType `xorm:"varchar(32) notnull default('student')"`
+	Scope          ScopeType `xorm:"notnull"`
 	Method         AuthType  `xorm:"varchar(32) notnull default('client')"`
 	CreateAt       time.Time `xorm:"notnull"`
 	UpdateAt       time.Time `xorm:"notnull"`
@@ -38,7 +38,7 @@ type AccessToken struct {
 	Token    string    `xorm:"notnull varchar(32)"`
 	UserID   string    `xorm:"notnull varchar(32)"`
 	ClientID string    `xorm:"notnull varchar(32)"`
-	Scope    ScopeType `xorm:"notnull varchar(32) default('student')"`
+	Scope    ScopeType `xorm:"notnull"`
 	ExpireAt time.Time `xorm:"notnull"`
 	CreateAt time.Time `xorm:"notnull"`
 }
@@ -49,7 +49,7 @@ type RefreshToken struct {
 	Token    string    `xorm:"notnull varchar(32)"`
 	UserID   string    `xorm:"notnull varchar(32)"`
 	ClientID string    `xorm:"notnull varchar(32)"`
-	Scope    ScopeType `xorm:"notnull varchar(32) default('student')"`
+	Scope    ScopeType `xorm:"notnull"`
 	ExpireAt time.Time `xorm:"notnull"`
 	CreateAt time.Time `xorm:"notnull"`
 }
@@ -60,7 +60,7 @@ type AuthorizationCode struct {
 	Code        string    `xorm:"notnull varchar(32)"`
 	UserID      string    `xorm:"notnull varchar(32)"`
 	ClientID    string    `xorm:"notnull varchar(32)"`
-	Scope       ScopeType `xorm:"notnull varchar(32) default('student')"`
+	Scope       ScopeType `xorm:"notnull"`
 	ExpireAt    time.Time `xorm:"notnull"`
 	CreateAt    time.Time `xorm:"notnull"`
 	RedirectUri string    `xorm:"varchar(255)"`

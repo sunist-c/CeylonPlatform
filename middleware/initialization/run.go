@@ -15,6 +15,7 @@ func StartUp() (err error) {
 
 	// 绑定服务路由
 	api.Bind()
+	api.LoadHtml()
 
 	return nil
 }

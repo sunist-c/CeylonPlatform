@@ -418,7 +418,7 @@ func (a Authenticator) ClientAuth(clientID, clientSecret string, scope ScopeType
 }
 
 // ImplicitAuth Client发起Implicit认证后，用户在页面授权完成后，重定向到Client的业务逻辑
-func (a Authenticator) ImplicitAuth(userID, clientID, redirectURL string, scope ScopeType) (uri string, err error) {
+func (a Authenticator) ImplicitAuth(userID, clientID, redirectURL, password string, scope ScopeType) (uri string, err error) {
 	client := &Client{}
 	user := &User{}
 	ok, err := a.dbConn.ID(clientID).Get(client)
@@ -432,6 +432,10 @@ func (a Authenticator) ImplicitAuth(userID, clientID, redirectURL string, scope 
 
 	if !strings.Contains(redirectURL, client.RedirectDomain) {
 		return "", errors.New("bad auth with illegal redirect-url")
+	}
+
+	if user.Password != encodePassword(password, user.ID) {
+		return "", errors.New("wrong password")
 	}
 
 	if client.Scope < scope || user.Scope < scope {
@@ -460,16 +464,24 @@ func (a Authenticator) ImplicitAuth(userID, clientID, redirectURL string, scope 
 }
 
 // CodeAuth Client发起Code认证后，用户在页面授权完成后，重定向到Client后端，供Client后端进行CodeToToken的业务逻辑
-func (a Authenticator) CodeAuth(userID, clientID, redirectURL string, scope ScopeType) (uri string, err error) {
+func (a Authenticator) CodeAuth(userID, clientID, redirectURL, password string, scope ScopeType) (uri string, err error) {
 	client := &Client{}
 	user := &User{}
 	ok, err := a.dbConn.ID(clientID).Get(client)
 	if !ok || err != nil {
-		return "", err
+		if err != nil {
+			return "", err
+		} else {
+			return "", errors.New("no such client")
+		}
 	}
 	ok, err = a.dbConn.ID(userID).Get(user)
 	if !ok || err != nil {
-		return "", err
+		if err != nil {
+			return "", err
+		} else {
+			return "", errors.New("no such user")
+		}
 	}
 
 	if !strings.Contains(redirectURL, client.RedirectDomain) {
@@ -478,6 +490,10 @@ func (a Authenticator) CodeAuth(userID, clientID, redirectURL string, scope Scop
 
 	if client.Scope < scope || user.Scope < scope {
 		return "", errors.New("bad auth with illegal scope")
+	}
+
+	if user.Password != encodePassword(password, user.ID) {
+		return "", errors.New("wrong password")
 	}
 
 	code, err := a.CreateAuthorizationCodeWith(&AuthorizationCodeOptions{
@@ -836,7 +852,11 @@ func (a Authenticator) GetClientInfo(clientID string) (client *Client, err error
 	client = &Client{}
 	ok, err := a.dbConn.ID(clientID).Get(client)
 	if !ok || err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		} else {
+			return nil, errors.New("no such client")
+		}
 	}
 
 	return client, nil
@@ -852,5 +872,5 @@ func (a Authenticator) GetUserID(name string) (id string, err error) {
 		return "", err
 	}
 
-	return user.Name, nil
+	return user.ID, nil
 }

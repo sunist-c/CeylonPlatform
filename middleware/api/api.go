@@ -155,3 +155,7 @@ func AddService(serviceInterface ServiceInterface) {
 func Run(port string) error {
 	return baseEngine.Run(fmt.Sprintf("0.0.0.0:%v", port))
 }
+
+func LoadHtml() {
+	baseEngine.LoadHTMLGlob("./../public/**/*")
+}
